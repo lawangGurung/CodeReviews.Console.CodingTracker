@@ -1,9 +1,7 @@
-using System;
 using System.Configuration;
 using System.Data;
 using System.Globalization;
 using Dapper;
-using Microsoft.CSharp.RuntimeBinder;
 using Microsoft.Data.Sqlite;
 
 namespace Lawang.Coding_Tracker;

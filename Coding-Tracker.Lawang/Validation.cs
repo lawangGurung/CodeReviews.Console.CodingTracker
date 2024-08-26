@@ -1,6 +1,4 @@
-using System;
 using System.Globalization;
-using System.Reflection.Metadata.Ecma335;
 using Spectre.Console;
 
 namespace Lawang.Coding_Tracker;

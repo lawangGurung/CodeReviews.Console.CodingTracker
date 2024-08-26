@@ -1,5 +1,3 @@
-using System.Globalization;
-using System.Numerics;
 using Spectre.Console;
 
 namespace Lawang.Coding_Tracker;

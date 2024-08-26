@@ -1,4 +1,3 @@
-using System;
 using Spectre.Console;
 
 namespace Lawang.Coding_Tracker;
