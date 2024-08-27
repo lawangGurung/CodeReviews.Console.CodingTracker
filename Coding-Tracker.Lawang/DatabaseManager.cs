@@ -26,7 +26,7 @@ public class DatabaseManager
             using (var connection = new SqliteConnection(_connectionString))
             {
                 connection.Execute(createSQL);
-            };
+            }
 
         }
         catch (SqliteException ex)
