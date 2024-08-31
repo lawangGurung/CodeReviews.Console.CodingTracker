@@ -23,9 +23,18 @@ public class DatabaseManager
                     Duration TEXT,
                     Date TEXT
                 )";
+
+            var createGoalsSQL = 
+            @"CREATE TABLE IF NOT EXISTS CodingGoals(
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                Time_to_complete TEXT,
+                Avg_Time_To_Code TEXT,
+                Days_left INTEGER 
+            );";
             using (var connection = new SqliteConnection(_connectionString))
             {
                 connection.Execute(createSQL);
+                connection.Execute(createGoalsSQL);
             }
 
         }

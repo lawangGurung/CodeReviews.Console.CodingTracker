@@ -61,7 +61,10 @@ public class UserInput
                         _visual.RenderResult(affectedRow);
 
                     }
-                    catch (ExitOutOfOperationException) { }
+                    catch (ExitOutOfOperationException ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
 
                     break;
                 case 4:
@@ -78,7 +81,10 @@ public class UserInput
                         _visual.RenderResult(affectedRow);
 
                     }
-                    catch (ExitOutOfOperationException) { }
+                    catch (ExitOutOfOperationException ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
                     break;
 
                 case 6:
@@ -93,12 +99,8 @@ public class UserInput
 
                 case 8:
                     Console.Clear();
-                    try
-                    {
-                        SetGoals();
-                        Console.ReadLine();
-                    }
-                    catch(ExitOutOfOperationException){}
+                    ManageGoals();
+
                     break;
 
                 case 0:
@@ -125,12 +127,15 @@ public class UserInput
             Exception -> User start coding at night 11:00 pm till 2:00 am,
             Solution -> Add 1 day to the endTime if it is smaller than startTime.  
         */
-        
+
         if (endTime < startTime)
         {
             endTime = endTime.AddDays(1);
         }
         TimeSpan duration = endTime - startTime;
+
+        // On which day CodingSession took place
+        DateTime sessionDate = _validation.ValidateSessionDate();
 
         var codingSession = new CodingSession()
         {
@@ -138,7 +143,7 @@ public class UserInput
             EndTime = endTime,
             Duration = duration,
             //Date on which startTime was intiated
-            Date = startTime.Date
+            Date = sessionDate
         };
 
 
@@ -342,10 +347,57 @@ public class UserInput
         _visual.ShowReport("Total Time", totalTime.ToString(), "yellow");
         _visual.ShowReport("Average Time", averageTimeSpan.ToString(), "green");
     }
-
-    public void SetGoals()
+    public void ManageGoals()
     {
-    
+        while(true)
+        {
+            Option selection = _validation.ValidateGoalOption();
+            switch (selection.SelectedValue)
+            {
+                case 1:
+                    var codingGoals = _codingController.GetAllCodingGoals();
+                    if(codingGoals.Count != 0)
+                    {
+                        _visual.RenderCodingGoals(codingGoals);
+                    }
+                    else
+                    {
+                        AnsiConsole.Markup("[red]NO CODING GOALS RECORDED!![/]");
+                    }
+                    Console.ReadLine();
+                    break;
+                case 2:
+                    try
+                    {
+                        int rowAffected = SetGoals();
+                        _visual.RenderResult(rowAffected);
+                    }
+                    catch (ExitOutOfOperationException ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                    break;
+                case 3:
+                    codingGoals = _codingController.GetAllCodingGoals();
+                    if(codingGoals.Count != 0)
+                    {
+                        _visual.RenderCodingGoals(codingGoals);
+                        DeleteGoal(codingGoals);
+                    }
+                    else
+                    {
+                        AnsiConsole.Markup("[red]NO CODING GOALS TO DELETE[/]");
+                    }
+                    break;
+                case 0:
+                    return;
+            }
+            Console.Clear();
+        }
+    }
+    public int SetGoals()
+    {
+
         AnsiConsole.Write(new Rule("[green bold]CODING GOAL[/]"));
         TimeSpan setTime = _validation.ValidateSetTimeDuration();
         Console.WriteLine();
@@ -381,7 +433,30 @@ public class UserInput
         _visual.ShowReport("Time To Complete", diffInCodingTime.ToString(), "red");
         _visual.ShowReport("Days left to Complete", daysLeft.ToString(), "red");
         _visual.ShowReport("Average time you need to code to complete goal", new TimeSpan(diffInCodingTime.Ticks / daysLeft).ToString(), "green");
+        var goal = new CodingGoals()
+        {
+           Time_to_complete = diffInCodingTime.ToString(),
+            Avg_Time_To_Code = new TimeSpan(diffInCodingTime.Ticks / daysLeft).ToString(),
+            Days_left = daysLeft
+        };
 
+        return _codingController.PostGoals(goal);
+
+    }
+
+    public void DeleteGoal(List<CodingGoals> codingGoals)
+    {
+        try
+        {
+
+            CodingGoals codingGoal = _validation.ValidateCodingGoal(codingGoals);
+            int rowAffected = _codingController.DeleteGoal(codingGoal);
+            _visual.RenderResult(rowAffected);
+        }
+        catch(ExitOutOfOperationException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
 
 }

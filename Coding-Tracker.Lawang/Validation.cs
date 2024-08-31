@@ -78,6 +78,27 @@ public class Validation
 
         return codingSessionRecord;
     }
+    public CodingGoals ValidateCodingGoal(List<CodingGoals> codingGoals)
+    {
+        CodingGoals? codingGoal;
+        do
+        {
+            //Prompts the user to enter the integer value.
+            int userInput = AnsiConsole.Ask<int>($"[bold]Enter the Id of the record you want to Delete: [/]");
+            //Returns to the Main menu.
+            if (userInput == 0)
+            {
+                throw new ExitOutOfOperationException("");
+            }
+            codingGoal = codingGoals.FirstOrDefault(session => session.Id == userInput);
+            if (codingGoal == null)
+            {
+                AnsiConsole.MarkupLine($"[red underline]Record with specified ID {userInput} is not present[/]");
+            }
+        } while (codingGoal == null);
+
+        return codingGoal;
+    }
     public Option ValidateMenuOption()
     {
         AnsiConsole.Write(new Rule("[blue3]Menu Options[/]").LeftJustified().RuleStyle("red"));
@@ -91,7 +112,7 @@ public class Validation
             new Option() {Display = "Delete a Record.", SelectedValue = 4},
             new Option() {Display = "Use Timer to record session", SelectedValue = 6},
             new Option() {Display = "Filter the Records and Show the Report", SelectedValue = 7},
-            new Option() {Display = "Set Goals", SelectedValue = 8},
+            new Option() {Display = "Manage Goals", SelectedValue = 8},
             new Option() {Display = "Exit the Application.", SelectedValue = 0}
 
 
@@ -105,6 +126,32 @@ public class Validation
             .MoreChoicesText("[grey](Press 'up' and 'down' key to navigate.[/])")
             .AddChoices(options)
             .HighlightStyle(Color.Blue3)
+            .WrapAround()
+        );
+
+        return selection;
+    }
+    public Option ValidateGoalOption()
+    {
+        AnsiConsole.Write(new Rule("[blue3]Goal Options[/]").LeftJustified().RuleStyle("red"));
+
+        //All the Goal options
+
+        List<Option> options = new List<Option>()
+        {
+            new Option() {Display = "Show all Goals", SelectedValue = 1},
+            new Option() {Display = "Set Goals", SelectedValue = 2},
+            new Option() {Display = "Delete Goal", SelectedValue = 3},
+            new Option() {Display = "Exit", SelectedValue = 0}
+        };
+
+        var selection = AnsiConsole.Prompt(
+            new SelectionPrompt<Option>()
+            .Title("\n[bold cyan underline]What [green]OPTION[/] do you want to choose?[/]\n")
+            .UseConverter<Option>(c => c.Display)
+            .MoreChoicesText("[grey(Press 'up' and 'down' key to navigate.[/])]")
+            .AddChoices(options)
+            .HighlightStyle(Color.Aqua)
             .WrapAround()
         );
 
@@ -173,6 +220,33 @@ public class Validation
     public DateTime ValidateStartDate()
     {
         AnsiConsole.MarkupLine("[green bold]Give the Starting Date for your [cyan1]Coding Goals[/]?.[/]");
+        AnsiConsole.MarkupLine("[grey](press '0' to go back to menu)[/]");
+        AnsiConsole.Markup("[grey]Enter the date in format (dd/MM/yy) where 'dd' is day, 'MM' is month, 'yy' is year (eg.22/12/24, 10/09/22): [/]");
+        string? userInput = Console.ReadLine()?.Trim();
+
+        DateTime startingDate;
+
+        do
+        {
+            if(DateTime.TryParseExact(userInput, "dd/MM/yy", CultureInfo.InvariantCulture, DateTimeStyles.None,out startingDate))
+            {
+                return startingDate;
+            }
+            else if(userInput ==  "0")
+            {
+                throw new ExitOutOfOperationException("");
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("[red bold]Please enter the date in correct format[/]: (eg. 02/05/24, 12/09/11)");
+                userInput = Console.ReadLine()?.Trim();
+            }
+        }while(true);
+    }
+
+    public DateTime ValidateSessionDate()
+    {
+        AnsiConsole.MarkupLine("[green bold]Give the Date for your [cyan1]Coding Session[/]?.[/]");
         AnsiConsole.MarkupLine("[grey](press '0' to go back to menu)[/]");
         AnsiConsole.Markup("[grey]Enter the date in format (dd/MM/yy) where 'dd' is day, 'MM' is month, 'yy' is year (eg.22/12/24, 10/09/22): [/]");
         string? userInput = Console.ReadLine()?.Trim();

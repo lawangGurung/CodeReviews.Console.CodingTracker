@@ -48,6 +48,28 @@ public class CodingController
 
         return codingSessions;
     }
+
+    public List<CodingGoals> GetAllCodingGoals()
+    {
+        var codingGoals = new List<CodingGoals>();
+        try
+        {
+            using IDbConnection connection = new SqliteConnection(_connectionString);
+            string getAllSQL =
+                @"SELECT * FROM CodingGoals";
+
+            
+
+            return connection.Query<CodingGoals>(getAllSQL).ToList();
+        }
+        catch (SqliteException ex)
+        {
+            Console.WriteLine(ex.Message);
+            Console.ReadLine();
+        }
+
+        return codingGoals;
+    }
     public int Post(CodingSession codingSession)
     {
         try
@@ -63,6 +85,33 @@ public class CodingController
                 @endTime = codingSession.EndTime.ToString("hh:mm tt"),
                 @Duration = codingSession.Duration.ToString("hh\\:mm\\:ss"),
                 @Date = codingSession.Date.ToString("dd/MM/yyyy")
+            };
+
+            int affectedRow = connection.Execute(insertSQL, parameter);
+
+            return affectedRow;
+        }
+        catch (SqliteException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+        return -1;
+    }
+    public int PostGoals(CodingGoals codingGoals)
+    {
+        try
+        {
+            using IDbConnection connection = new SqliteConnection(_connectionString);
+            string insertSQL =
+                @"INSERT INTO CodingGoals(Time_to_complete, Avg_Time_To_Code, Days_left)
+                VALUES(@timeToComplete, @Avg_Time_To_Code, @days_left)";
+
+            var parameter = new
+            {
+               @timeToComplete = codingGoals.Time_to_complete,
+               @Avg_Time_To_Code = codingGoals.Avg_Time_To_Code,
+               @days_left = codingGoals.Days_left 
             };
 
             int affectedRow = connection.Execute(insertSQL, parameter);
@@ -117,6 +166,23 @@ public class CodingController
                 WHERE Id = @id";
 
             return connection.Execute(deleteSQL, new {@id = codingSession.Id});
+        }
+        catch (SqliteException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        return -1;
+    }
+    public int DeleteGoal(CodingGoals codingGoal)
+    {
+        try
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            string deleteSQL = 
+                @"DELETE FROM CodingGoals
+                WHERE Id = @id";
+
+            return connection.Execute(deleteSQL, new {@id = codingGoal.Id});
         }
         catch (SqliteException ex)
         {
